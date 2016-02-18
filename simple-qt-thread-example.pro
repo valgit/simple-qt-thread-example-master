@@ -14,9 +14,9 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    producer.cpp consumer.cpp work.cpp
+    producer.cpp consumer.cpp work.cpp flow.cpp
 
 HEADERS  += mainwindow.h \
-    producer.h consumer.h work.h
+    producer.h consumer.h work.h flow.h
 
 FORMS    += mainwindow.ui

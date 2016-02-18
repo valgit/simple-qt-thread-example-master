@@ -24,6 +24,7 @@
 
 #include <QObject>
 #include <QMutex>
+#include <QReadWriteLock>
 
 #include "work.h"
 
@@ -61,7 +62,12 @@ private:
     QMutex mutex;
 
     WorkQ* queue;
-    
+
+	  /**
+		 * access to file ?    
+		 */
+	  QReadWriteLock flowlock;
+
 signals:
     /**
      * @brief This signal is emitted when the Consumer request to Work

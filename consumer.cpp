@@ -19,6 +19,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "consumer.h"
 #include <QTimer>
 #include <QEventLoop>
@@ -27,6 +28,7 @@
 #include <QDebug>
 
 #include "work.h"
+#include "flow.h"
 
 extern int DataSize;
 
@@ -37,6 +39,7 @@ Consumer::Consumer(WorkQ* q,QObject *parent) :
     _abort = false;
 
     queue = q;
+
 }
 
 void Consumer::requestWork()
@@ -84,6 +87,9 @@ void Consumer::doWork()
 	  fprintf(stderr,"got poison pills\n");
 	  break;
 	}
+			  // do some work !
+			  flow myfile;
+		    myfile.getflow(item);
         fprintf(stderr, "%c", item);
      }
 
