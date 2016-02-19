@@ -36,9 +36,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // The thread and the worker are created in the constructor so it is always safe to delete them.
     WorkQ* queue = new WorkQ(1024);
+	  int consumers = 4;
 	
     pthread = new QThread();
-    producer = new Producer(queue);
+    producer = new Producer(queue,consumers);
 
     producer->moveToThread(pthread);
     connect(producer, SIGNAL(valueChanged(QString)), ui->label, SLOT(setText(QString)));
@@ -46,23 +47,22 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(pthread, SIGNAL(started()), producer, SLOT(doWork()));
     connect(producer, SIGNAL(finished()), pthread, SLOT(quit()), Qt::DirectConnection);
 
-    cthread[0] = new QThread();
-    consumer[0] = new Consumer(queue);
+    // put N consummer ?
+	  for(int i=0;i<consumers;i++) {
+						cthread[i] = new QThread();
+						consumer[i] = new Consumer(queue);
 
-    consumer[0]->moveToThread(cthread[0]);
-    connect(consumer[0], SIGNAL(valueChanged(QString)), ui->label, SLOT(setText(QString)));
-    connect(consumer[0], SIGNAL(workRequested()), cthread[0], SLOT(start()));
-    connect(cthread[0], SIGNAL(started()), consumer[0], SLOT(doWork()));
-    connect(consumer[0], SIGNAL(finished()), cthread[0], SLOT(quit()), Qt::DirectConnection);
+						consumer[i]->moveToThread(cthread[i]);
+						connect(consumer[i], SIGNAL(valueChanged(QString)), 
+										ui->label, SLOT(setText(QString)));
+						connect(consumer[i], SIGNAL(workRequested()), cthread[i], SLOT(start()));
+						connect(cthread[i], SIGNAL(started()), consumer[i], 
+										SLOT(doWork()));
+						connect(consumer[i], SIGNAL(finished()), cthread[i], 
+										SLOT(quit()), Qt::DirectConnection);
+	  }
 
-    cthread[1] = new QThread();
-    consumer[1] = new Consumer(queue);
 
-    consumer[1]->moveToThread(cthread[1]);
-    connect(consumer[1], SIGNAL(valueChanged(QString)), ui->label, SLOT(setText(QString)));
-    connect(consumer[1], SIGNAL(workRequested()), cthread[1], SLOT(start()));
-    connect(cthread[1], SIGNAL(started()), consumer[1], SLOT(doWork()));
-    connect(consumer[1], SIGNAL(finished()), cthread[1], SLOT(quit()), Qt::DirectConnection);
 }
 
 MainWindow::~MainWindow()

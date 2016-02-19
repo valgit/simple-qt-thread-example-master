@@ -30,12 +30,13 @@
 
 extern int DataSize;
 
-Producer::Producer(WorkQ* q,QObject *parent) :
+Producer::Producer(WorkQ* q,int consumers,QObject *parent) :
     QObject(parent)
 {
     _working =false;
     _abort = false;
     queue = q;
+	 this->consumers = consumers;
 }
 
 void Producer::requestWork()
@@ -82,8 +83,9 @@ void Producer::doWork()
 
     // signal poison pills
     // for ech consumer ?
-    queue->add('P');
-    queue->add('P');
+	  for(int i =0;i<consumers;i++) {
+						queue->add('P');
+	  }
 
     // Set _working to false, meaning the process can't be aborted anymore.
     mutex.lock();

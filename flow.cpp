@@ -4,14 +4,14 @@
 #include <QTimer>
 #include <QEventLoop>
 
-#include <QThread>
+#include <QMutex>
+#include <QMutexLocker>
 #include <QDebug>
 
 
-QReadWriteLock flowlockA;
-QReadWriteLock flowlockC;
-QReadWriteLock flowlockG;
-QReadWriteLock flowlockT;
+QMutex flowlock;
+QHash<QChar, QMutex*> flowfiles;
+
 
 flow::flow(QObject *parent) :
     QObject(parent)
@@ -21,52 +21,33 @@ flow::flow(QObject *parent) :
 
 int flow::getflow(const char flowname) 
 {
+  QMutex* flow; // mutex on our file
 
-	qDebug() << "getting flow from thr : " ;
+	//qDebug() << "getting flow from thr : " ;
   // do some work !
-	int r = rand() % 20;
-		  switch(flowname) {
-			case 'A' : 
-					if (r == 0) {
-						qDebug() << "A write from thr : " ;
-						QWriteLocker locker( &flowlockA );
-						sleep( 3 ); // generate file
-				  } else {
-						qDebug() << "A read from thr : " ;
-						QReadLocker locker( &flowlockA );
-				  }
-				break;
-			case 'C' : 
-					if (r == 0) {
-						qDebug() << "C write from thr : " ;
-						QWriteLocker locker( &flowlockC );
-						sleep( 3 ); // generate file
-				  } else {
-						qDebug() << "C read from thr : " ;
-						QReadLocker locker( &flowlockC );
-				  }
-				break;
-			case 'G' :
-					if (r == 0) {
-						qDebug() << "G write from thr : "  ;
-						QWriteLocker locker( &flowlockG );
-						sleep( 3 ); // generate file
-				  } else {
-						qDebug() << "G read from thr : " ;
-						QReadLocker locker( &flowlockG );
-				  }
-				break;
-			case 'T' :
-					if (r == 0) {
-						qDebug() << "T write from thr : ";
-						QWriteLocker locker( &flowlockT );
-						sleep( 3 ); // generate file
-				  } else {
-						qDebug() << "T read from thr : " ;
-						QReadLocker locker( &flowlockT );
-				  }
-				break;
-		  }
+	int r = rand() % 10;
+
+  QMutexLocker locker(&flowlock);
+  if (flowfiles.contains(flowname)) {
+		flow = flowfiles.value(flowname);
+  } else {
+	  qDebug() << "create mutex flow" ;
+	  flow = new QMutex();
+	  flowfiles.insert(flowname,flow); 
+	  
+  }
+  locker.unlock();
+
+  // we have a mutex on flow file !
+  QMutexLocker lockflow(flow);
+
+	if (r == 0) {
+						//qDebug() << "write from thr : " << flowname ;
+						sleep( 1 ); // generate file
+	} /*
+else {
+						qDebug() << "read from thr : " << flowname ;
+	} */
 
   return r;
 }

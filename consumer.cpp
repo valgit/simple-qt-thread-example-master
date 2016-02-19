@@ -67,7 +67,8 @@ void Consumer::doWork()
 {
     qDebug()<<"Starting consumer process in Thread "<<thread()->currentThreadId();
 
-    for (int i = 0; i < DataSize; ++i) {
+    //for (int i = 0; i < DataSize; ++i) {
+	  while (1) {
     volatile char item;
 
       // Checks if the process should be aborted

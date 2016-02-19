@@ -32,7 +32,7 @@ class Producer : public QObject
     Q_OBJECT
 
 public:
-    explicit Producer(WorkQ* q,QObject *parent = 0);
+    explicit Producer(WorkQ* q,int consumers,QObject *parent = 0);
     /**
      * @brief Requests the process to start
      *
@@ -61,6 +61,7 @@ private:
     QMutex mutex;
 
     WorkQ* queue;
+	  int consumers; // how many consumers there are to notify
 
 signals:
     /**
